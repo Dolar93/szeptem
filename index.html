@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>szeptem — dyskretny marketplace dla dorosłych</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══════════ BRAMKA 18+ ══════════ -->
+<div class="agegate" id="agegate">
+  <div class="agegate-card">
+    <div class="wordmark wordmark-lg">szeptem<span class="wordmark-dot">.</span></div>
+    <p class="agegate-lead">Ta strona zawiera treści przeznaczone wyłącznie dla&nbsp;osób pełnoletnich.</p>
+    <p class="agegate-sub">Wchodząc potwierdzasz, że masz ukończone 18&nbsp;lat i&nbsp;akceptujesz regulamin serwisu.</p>
+    <div class="agegate-actions">
+      <button class="btn btn-gold" id="age-yes">Mam 18 lat — wchodzę</button>
+      <a class="btn btn-ghost" href="https://www.google.com">Wychodzę</a>
+    </div>
+    <p class="agegate-note">Prototyp — żadne treści ani płatności nie są prawdziwe.</p>
+  </div>
+</div>
+
+<!-- ══════════ NAGŁÓWEK ══════════ -->
+<header class="topbar">
+  <a class="wordmark" href="#" data-nav="home">szeptem<span class="wordmark-dot">.</span></a>
+  <nav class="nav">
+    <a href="#" data-nav="home" class="nav-link active">Start</a>
+    <a href="#" data-nav="shorts" class="nav-link">Zajawki</a>
+    <a href="#" data-nav="browse" class="nav-link">Katalog</a>
+    <a href="#" data-nav="sellers" class="nav-link">Dla sprzedawczyń</a>
+    <a href="#" data-nav="safety" class="nav-link">Bezpieczeństwo</a>
+  </nav>
+  <div class="topbar-actions" id="topbar-actions"></div>
+</header>
+
+<main>
+
+<!-- ══════════ WIDOK: START ══════════ -->
+<section class="view active" id="view-home">
+  <div class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Pierwszy polski marketplace 18+</p>
+      <h1 class="display">Kupuj i&nbsp;sprzedawaj <em>szeptem</em></h1>
+      <p class="lead">Zdjęcia stóp, noszona bielizna i&nbsp;prywatne kolekcje — od&nbsp;zweryfikowanych sprzedawczyń, bez pośredników z&nbsp;zagranicy, w&nbsp;złotówkach i&nbsp;po&nbsp;polsku.</p>
+      <div class="hero-actions">
+        <button class="btn btn-gold" data-nav="browse">Przeglądaj katalog</button>
+        <button class="btn btn-ghost" data-nav="sellers">Zostań sprzedawczynią</button>
+      </div>
+      <ul class="hero-props">
+        <li>Weryfikacja wieku i&nbsp;tożsamości każdej sprzedawczyni</li>
+        <li>Dyskretne płatności i&nbsp;neutralna nazwa na&nbsp;wyciągu</li>
+        <li>Automatyczny znak wodny na&nbsp;każdym podglądzie</li>
+      </ul>
+    </div>
+    <div class="hero-visual">
+      <div class="veil-card veil-hero" data-seed="7">
+        <div class="veil-art"></div>
+        <div class="veil-cover">
+          <svg class="icon-lock" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z"/></svg>
+          <span>Treść za zasłoną</span>
+          <small>odkryjesz ją po zakupie</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="strip">
+    <div class="strip-item"><strong>85%</strong><span>prowizji trafia do sprzedawczyni</span></div>
+    <div class="strip-item"><strong>PLN</strong><span>ceny i wypłaty w złotówkach</span></div>
+    <div class="strip-item"><strong>18+</strong><span>weryfikacja dowodem, nie deklaracją</span></div>
+    <div class="strip-item"><strong>0</strong><span>prawdziwych imion w serwisie</span></div>
+  </div>
+
+  <div class="section">
+    <p class="eyebrow">Prosto od sprzedawczyń</p>
+    <h2 class="h2">Zajawki — zobacz, <em>zanim kupisz</em></h2>
+    <p class="lead lead-narrow">Krótkie wideo od zweryfikowanych sprzedawczyń: kulisy sesji, pakowanie paczek, zapowiedzi ofert. Kliknij, żeby obejrzeć i&nbsp;poznać profil.</p>
+    <div class="shorts-teaser" id="home-shorts"></div>
+    <div class="section-more"><button class="btn btn-ghost" data-nav="shorts">Oglądaj wszystkie zajawki</button></div>
+  </div>
+
+  <div class="section">
+    <p class="eyebrow">Nowości w katalogu</p>
+    <h2 class="h2">Ostatnio <em>uchylone</em></h2>
+    <div class="grid" id="home-grid"></div>
+    <div class="section-more"><button class="btn btn-ghost" data-nav="browse">Zobacz cały katalog</button></div>
+  </div>
+</section>
+
+<!-- ══════════ WIDOK: ZAJAWKI (shorts) ══════════ -->
+<section class="view" id="view-shorts">
+  <div class="shorts-wrap">
+    <aside class="shorts-intro">
+      <p class="eyebrow">Zajawki</p>
+      <h2 class="h2">Krótko. Zmysłowo. <em>Szeptem.</em></h2>
+      <p class="lead">Sprzedawczynie pokazują tu kulisy swoich ofert w&nbsp;kilkusekundowych klipach. Podgląd zawsze ze&nbsp;znakiem wodnym — pełna treść czeka za&nbsp;zasłoną.</p>
+      <ul class="hero-props shorts-hints">
+        <li>Przewijaj w dół, żeby oglądać kolejne</li>
+        <li>Kliknij wideo, żeby przejść do profilu</li>
+        <li>Złoty przycisk kupuje ofertę z zajawki</li>
+      </ul>
+    </aside>
+    <div class="shorts-feed" id="shorts-feed" aria-label="Zajawki wideo"></div>
+  </div>
+</section>
+
+<!-- ══════════ WIDOK: KATALOG ══════════ -->
+<section class="view" id="view-browse">
+  <div class="section">
+    <p class="eyebrow">Katalog</p>
+    <h2 class="h2">Wybierz, co Cię <em>kusi</em></h2>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="browse-grid"></div>
+  </div>
+</section>
+
+<!-- ══════════ WIDOK: PROFIL ══════════ -->
+<section class="view" id="view-profile">
+  <div class="section" id="profile-root"></div>
+</section>
+
+<!-- ══════════ WIDOK: DLA SPRZEDAWCZYŃ ══════════ -->
+<section class="view" id="view-sellers">
+  <div class="section">
+    <p class="eyebrow">Dla sprzedawczyń</p>
+    <h2 class="h2">Twoje zasady. Twoja cena. <em>Twoja anonimowość.</em></h2>
+    <p class="lead lead-narrow">Zarabiasz na własnych warunkach — my pilnujemy dyskrecji, płatności i&nbsp;tego, żeby nikt nie&nbsp;ukradł Twoich zdjęć.</p>
+
+    <ol class="steps">
+      <li class="step">
+        <span class="step-no">1</span>
+        <h3>Weryfikacja</h3>
+        <p>Dowód osobisty + selfie. Sprawdzamy pełnoletność i&nbsp;tożsamość, a&nbsp;potem te dane znikają z&nbsp;widoku — kupujący widzą wyłącznie Twój pseudonim.</p>
+      </li>
+      <li class="step">
+        <span class="step-no">2</span>
+        <h3>Wystawiasz oferty</h3>
+        <p>Zdjęcia stóp, bielizna, zestawy, video. Sama ustalasz ceny. Każdy podgląd dostaje automatyczny znak wodny i&nbsp;trafia za&nbsp;zasłonę.</p>
+      </li>
+      <li class="step">
+        <span class="step-no">3</span>
+        <h3>Wypłacasz</h3>
+        <p>85% ceny trafia do&nbsp;Ciebie. Wypłata na&nbsp;konto lub w&nbsp;krypto, z&nbsp;neutralnym tytułem przelewu.</p>
+      </li>
+    </ol>
+
+    <div class="seller-cta">
+      <button class="btn btn-gold" onclick="alert('Prototyp — rejestracja jeszcze nie działa.')">Załóż konto sprzedawczyni</button>
+      <span class="seller-cta-note">Rejestracja i weryfikacja są bezpłatne.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ WIDOK: BEZPIECZEŃSTWO ══════════ -->
+<section class="view" id="view-safety">
+  <div class="section">
+    <p class="eyebrow">Bezpieczeństwo</p>
+    <h2 class="h2">Dyskrecja to nie dodatek. <em>To fundament.</em></h2>
+    <div class="safety-grid">
+      <div class="safety-card">
+        <h3>Weryfikacja 18+</h3>
+        <p>Każda sprzedawczyni przechodzi weryfikację dowodem osobistym i&nbsp;selfie. Konta bez weryfikacji nie mogą niczego wystawić.</p>
+      </div>
+      <div class="safety-card">
+        <h3>Anonimowość obu stron</h3>
+        <p>Pseudonimy zamiast imion, brak publicznych danych kontaktowych. Wiadomości tylko wewnątrz serwisu.</p>
+      </div>
+      <div class="safety-card">
+        <h3>Neutralne płatności</h3>
+        <p>Na wyciągu z banku pojawia się neutralna nazwa firmy — nigdy nazwa serwisu ani opis zakupu.</p>
+      </div>
+      <div class="safety-card">
+        <h3>Ochrona treści</h3>
+        <p>Znaki wodne na podglądach, blokada zapisu, zgłoszenia DMCA w&nbsp;imieniu sprzedawczyń, gdy ktoś wyniesie treści poza serwis.</p>
+      </div>
+      <div class="safety-card">
+        <h3>Moderacja</h3>
+        <p>Każda oferta przechodzi przez moderację przed publikacją. Zero tolerancji dla treści niezgodnych z&nbsp;prawem lub wystawianych bez zgody.</p>
+      </div>
+      <div class="safety-card">
+        <h3>RODO</h3>
+        <p>Dane weryfikacyjne przechowywane osobno od&nbsp;profilu, szyfrowane, usuwane na&nbsp;żądanie po&nbsp;zamknięciu konta.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══════════ MODAL ZAKUPU ══════════ -->
+<div class="modal-backdrop" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" id="modal-close" aria-label="Zamknij">×</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="wordmark">szeptem<span class="wordmark-dot">.</span></div>
+  <p>Serwis wyłącznie dla osób pełnoletnich. Prototyp — treści przykładowe, płatności nieaktywne.</p>
+  <nav class="footer-links">
+    <a href="#" onclick="return false">Regulamin</a>
+    <a href="#" onclick="return false">Polityka prywatności</a>
+    <a href="#" onclick="return false">Kontakt</a>
+    <span class="badge-18">18+</span>
+  </nav>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
