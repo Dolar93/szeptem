@@ -127,7 +127,24 @@
 
   // ── zajawki (shorts) ──
   const feedEl = document.getElementById("shorts-feed");
-  const likedShorts = new Set();
+  const likedShorts = new Set(); // id-ki jako stringi (własne zajawki mają id "u<timestamp>")
+
+  // zajawki dodane w panelu sprzedawczyni — przeżywają odświeżenie strony
+  const MY_SHORTS_KEY = "szeptem-my-shorts";
+  let myShorts = [];
+  try { myShorts = JSON.parse(localStorage.getItem(MY_SHORTS_KEY)) || []; } catch (e) { /* uszkodzony zapis */ }
+  // zajawki zostawione „w moderacji" przed odświeżeniem zatwierdzamy po cichu
+  myShorts.forEach(sh => { if (sh.status !== "live") approveShortData(sh); });
+
+  function saveMyShorts() { localStorage.setItem(MY_SHORTS_KEY, JSON.stringify(myShorts)); }
+
+  function approveShortData(sh) {
+    sh.status = "live";
+    sh.views = 40 + Math.floor(Math.random() * 180);
+    sh.likes = 2 + Math.floor(Math.random() * 20);
+  }
+
+  const allShorts = () => [...myShorts.filter(sh => sh.status === "live"), ...SHORTS];
 
   // 12 400 → „12,4 tys.", 980 → „980"
   function fmtCount(n) {
@@ -150,9 +167,9 @@
         <div class="short-tap" data-profile="${sh.seller}" role="button" tabindex="0"
              aria-label="Zobacz profil: ${s.handle}"></div>
         <div class="short-rail">
-          <button class="rail-btn${likedShorts.has(sh.id) ? " liked" : ""}" data-like="${sh.id}" aria-label="Polub zajawkę">
+          <button class="rail-btn${likedShorts.has(String(sh.id)) ? " liked" : ""}" data-like="${sh.id}" aria-label="Polub zajawkę">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 21s-7.5-4.7-10-9.3C.5 8.3 2.6 4.5 6.3 4.5c2 0 3.6 1 4.6 2.6a.13.13 0 0 0 .2 0c1-1.6 2.6-2.6 4.6-2.6 3.7 0 5.8 3.8 4.3 7.2C19.5 16.3 12 21 12 21Z"/></svg>
-            <b data-like-count>${fmtCount(sh.likes + (likedShorts.has(sh.id) ? 1 : 0))}</b>
+            <b data-like-count>${fmtCount(sh.likes + (likedShorts.has(String(sh.id)) ? 1 : 0))}</b>
           </button>
           <button class="rail-btn" data-share aria-label="Udostępnij zajawkę">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M14 3v4C6 8 3 13 3 19c2.5-3.4 5.5-5 11-5v4l7-7.5L14 3Z"/></svg>
@@ -177,7 +194,11 @@
       </article>`;
   }
 
-  feedEl.innerHTML = SHORTS.map(shortCard).join("");
+  function renderFeed() {
+    feedEl.innerHTML = allShorts().map(shortCard).join("");
+    updatePlayingShort();
+  }
+  renderFeed();
 
   // zwiastun na stronie głównej — miniatury pionowe
   document.getElementById("home-shorts").innerHTML = SHORTS.map(sh => {
@@ -215,8 +236,8 @@
   document.addEventListener("click", e => {
     const like = e.target.closest("[data-like]");
     if (like) {
-      const id = Number(like.dataset.like);
-      const sh = SHORTS.find(x => x.id === id);
+      const id = like.dataset.like;
+      const sh = allShorts().find(x => String(x.id) === id);
       likedShorts.has(id) ? likedShorts.delete(id) : likedShorts.add(id);
       like.classList.toggle("liked", likedShorts.has(id));
       like.querySelector("[data-like-count]").textContent =
@@ -257,14 +278,22 @@
     toastTimer = setTimeout(() => el.classList.remove("show"), 2400);
   }
 
-  // ── mock logowania — po zalogowaniu startujesz w zajawkach ──
+  // ── mock logowania: kupujący startuje w zajawkach, sprzedawczyni w panelu ──
   const topbarActions = document.getElementById("topbar-actions");
   const LOGIN_KEY = "szeptem-login";
+  const SELLER_KEY = "szeptem-seller";
+  const DEMO_SELLER = "malina"; // konto demo panelu sprzedawczyni
 
   function renderTopbar() {
-    if (sessionStorage.getItem(LOGIN_KEY)) {
+    if (sessionStorage.getItem(SELLER_KEY)) {
+      const s = SELLERS[DEMO_SELLER];
       topbarActions.innerHTML = `
-        <span class="user-chip"><span class="avatar avatar-xs" style="--c1:#7d5a9e;--c2:#d8b07e">M</span>Misiek_88</span>
+        <span class="user-chip"><span class="avatar avatar-xs" style="--c1:${s.c1};--c2:${s.c2}">${s.handle[0]}</span><i class="user-chip-name">${s.handle}</i></span>
+        <button class="btn btn-gold btn-sm" id="btn-panel">Panel</button>
+        <button class="btn btn-ghost btn-sm" id="btn-logout">Wyloguj</button>`;
+    } else if (sessionStorage.getItem(LOGIN_KEY)) {
+      topbarActions.innerHTML = `
+        <span class="user-chip"><span class="avatar avatar-xs" style="--c1:#7d5a9e;--c2:#d8b07e">M</span><i class="user-chip-name">Misiek_88</i></span>
         <button class="btn btn-ghost btn-sm" id="btn-logout">Wyloguj</button>`;
     } else {
       topbarActions.innerHTML = `
@@ -281,16 +310,168 @@
       show("shorts");
       toast("Zalogowano (prototyp) — oto Twoje zajawki");
     }
+    if (e.target.id === "btn-panel") {
+      renderPanel();
+      show("panel");
+    }
     if (e.target.id === "btn-logout") {
       sessionStorage.removeItem(LOGIN_KEY);
+      sessionStorage.removeItem(SELLER_KEY);
       renderTopbar();
       show("home");
     }
   });
 
-  // zalogowany użytkownik zaczyna od zajawek
-  if (sessionStorage.getItem(LOGIN_KEY) && sessionStorage.getItem("szeptem-adult") === "1") {
-    show("shorts");
+  document.getElementById("btn-seller-signup").addEventListener("click", () => {
+    sessionStorage.setItem(SELLER_KEY, "1");
+    renderTopbar();
+    renderPanel();
+    show("panel");
+    toast("Konto demo — jesteś zalogowana jako Malina ✓");
+  });
+
+  // ── panel sprzedawczyni ──
+  const panelRoot = document.getElementById("panel-root");
+  let draftSeed = 1 + Math.floor(Math.random() * 9999);
+
+  function renderPanel() {
+    const s = SELLERS[DEMO_SELLER];
+    const myListings = LISTINGS.filter(l => l.seller === DEMO_SELLER);
+    const shortViews = allShorts()
+      .filter(sh => sh.seller === DEMO_SELLER)
+      .reduce((sum, sh) => sum + sh.views, 0);
+    const avgPrice = Math.round(myListings.reduce((sum, l) => sum + l.price, 0) / myListings.length);
+    const earnings = Math.round(s.sales * avgPrice * 0.85);
+
+    const rows = myShorts.map(sh => `
+      <li class="myshort-row">
+        <span class="myshort-veil" style="${veilVars(sh.seed)}"><span class="veil-art"></span></span>
+        <span class="myshort-meta">
+          <span class="myshort-caption">${sh.caption}</span>
+          <span class="myshort-stats">${sh.status === "live"
+            ? `${fmtCount(sh.views)} wyświetleń · ${fmtCount(sh.likes)} polubień · ${sh.dur} s`
+            : `${sh.dur} s · czeka na moderatora`}</span>
+        </span>
+        <span class="badge-status ${sh.status}">${sh.status === "live" ? "w feedzie" : "moderacja"}</span>
+        <button class="myshort-del" data-del-short="${sh.id}">Usuń</button>
+      </li>`).join("");
+
+    panelRoot.innerHTML = `
+      <p class="eyebrow">Panel sprzedawczyni</p>
+      <div class="panel-head">
+        <div class="avatar" style="--c1:${s.c1};--c2:${s.c2}">${s.handle[0]}</div>
+        <div>
+          <h2 class="profile-name">${s.handle} <span class="badge-verified" title="Zweryfikowana">✓</span></h2>
+          <p class="panel-sub">Konto demo · <a href="#" data-profile="${DEMO_SELLER}">zobacz swój profil tak, jak widzą go kupujący →</a></p>
+        </div>
+      </div>
+
+      <div class="panel-stats">
+        <div class="stat-tile"><strong>${s.sales}</strong><span>sprzedaży łącznie</span></div>
+        <div class="stat-tile"><strong>${earnings.toLocaleString("pl-PL")} zł</strong><span>Twoje 85% z obrotu</span></div>
+        <div class="stat-tile"><strong>${fmtCount(shortViews)}</strong><span>wyświetleń zajawek</span></div>
+        <div class="stat-tile"><strong>${myListings.length}</strong><span>${plural(myListings.length, "oferta", "oferty", "ofert")} w katalogu</span></div>
+      </div>
+
+      <div class="panel-cols">
+        <section class="panel-card">
+          <h3>Dodaj zajawkę</h3>
+          <p class="panel-hint">W pełnej wersji wgrasz tu pionowe wideo do 15 sekund. W prototypie zajawka dostaje wylosowany „atłas" — podgląd po prawej.</p>
+          <form id="short-form">
+            <div class="field">
+              <label for="sf-caption">Opis zajawki</label>
+              <textarea id="sf-caption" class="input" maxlength="120" rows="3" required
+                placeholder="Np. kulisy dzisiejszej sesji — świeży pedicure i poranne światło"></textarea>
+              <span class="field-note"><span id="sf-count">0</span>/120</span>
+            </div>
+            <div class="field">
+              <label for="sf-listing">Promowana oferta</label>
+              <select id="sf-listing" class="input">
+                ${myListings.map(l => `<option value="${l.id}">${l.title} · ${l.price} zł</option>`).join("")}
+              </select>
+            </div>
+            <div class="field">
+              <label for="sf-dur">Długość: <b id="sf-dur-val">8 s</b></label>
+              <input type="range" id="sf-dur" min="5" max="15" value="8">
+            </div>
+            <button class="btn btn-gold" type="submit">Wyślij do moderacji</button>
+            <p class="panel-hint">Każda zajawka przechodzi moderację przed publikacją — w prototypie trwa to kilka sekund.</p>
+          </form>
+        </section>
+
+        <section class="panel-card panel-preview">
+          <h3>Podgląd</h3>
+          <div class="draft-preview" id="sf-preview" style="${veilVars(draftSeed)}">
+            <div class="veil-art"></div>
+            <div class="short-wm" aria-hidden="true">${"szeptem.&ensp;".repeat(24)}</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" type="button" id="sf-reseed">Wylosuj inny atłas</button>
+        </section>
+      </div>
+
+      <section class="panel-card">
+        <h3>Twoje zajawki (${myShorts.length})</h3>
+        ${myShorts.length
+          ? `<ul class="myshorts">${rows}</ul>`
+          : `<p class="panel-empty">Nie masz jeszcze zajawek. Dodaj pierwszą — kupujący zobaczą ją na samej górze feedu.</p>`}
+      </section>`;
+
+    // formularz — licznik znaków, suwak, losowanie atłasu, publikacja
+    const cap = document.getElementById("sf-caption");
+    cap.addEventListener("input", () => {
+      document.getElementById("sf-count").textContent = cap.value.length;
+    });
+    const dur = document.getElementById("sf-dur");
+    dur.addEventListener("input", () => {
+      document.getElementById("sf-dur-val").textContent = dur.value + " s";
+    });
+    document.getElementById("sf-reseed").addEventListener("click", () => {
+      draftSeed = 1 + Math.floor(Math.random() * 9999);
+      document.getElementById("sf-preview").setAttribute("style", veilVars(draftSeed));
+    });
+    document.getElementById("short-form").addEventListener("submit", e => {
+      e.preventDefault();
+      const caption = cap.value.trim();
+      if (caption.length < 10) { toast("Opis musi mieć co najmniej 10 znaków"); return; }
+      const sh = {
+        id: "u" + Date.now(),
+        seller: DEMO_SELLER,
+        listing: Number(document.getElementById("sf-listing").value),
+        dur: Number(dur.value),
+        seed: draftSeed,
+        caption, views: 0, likes: 0,
+        status: "mod",
+      };
+      myShorts.unshift(sh);
+      saveMyShorts();
+      draftSeed = 1 + Math.floor(Math.random() * 9999);
+      renderPanel();
+      toast("Wysłano do moderacji…");
+      setTimeout(() => {
+        approveShortData(sh);
+        saveMyShorts();
+        renderFeed();
+        if (document.getElementById("view-panel").classList.contains("active")) renderPanel();
+        toast("Zajawka przeszła moderację — jest w feedzie ✓");
+      }, 4000);
+    });
+  }
+
+  // usuwanie własnej zajawki
+  panelRoot.addEventListener("click", e => {
+    const del = e.target.closest("[data-del-short]");
+    if (!del) return;
+    myShorts = myShorts.filter(sh => String(sh.id) !== del.dataset.delShort);
+    saveMyShorts();
+    renderFeed();
+    renderPanel();
+    toast("Zajawka usunięta");
+  });
+
+  // zalogowany użytkownik zaczyna od zajawek / panelu
+  if (sessionStorage.getItem("szeptem-adult") === "1") {
+    if (sessionStorage.getItem(SELLER_KEY)) { renderPanel(); show("panel"); }
+    else if (sessionStorage.getItem(LOGIN_KEY)) show("shorts");
   }
 
   // ── profil sprzedawczyni ──

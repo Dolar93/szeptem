@@ -22,6 +22,11 @@ npx serve -l 4174 .
   klik w wideo → profil sprzedawczyni, złoty CTA → modal zakupu oferty
 - **Mock logowania** — „Zaloguj" tworzy sesję (sessionStorage); zalogowany
   użytkownik startuje w feedzie zajawek, w nagłówku chip z pseudonimem
+- **Panel sprzedawczyni** — „Załóż konto sprzedawczyni" loguje na konto demo
+  (Malina): statystyki (sprzedaże, 85% obrotu, wyświetlenia zajawek),
+  formularz nowej zajawki (opis + licznik znaków, promowana oferta, długość,
+  losowany „atłas" z podglądem), mock moderacji (4 s) i lista własnych
+  zajawek z usuwaniem; opublikowane trafiają na górę feedu (localStorage)
 - **Katalog** — 12 przykładowych ofert, filtry kategorii (stópki / bielizna /
   skarpetki / zestawy / video)
 - **Profil sprzedawczyni** — pseudonim, bio, statystyki, jej oferty
