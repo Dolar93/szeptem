@@ -48,6 +48,55 @@ const SELLERS = {
   },
 };
 
+// opisy ofert — widok szczegółów
+const LISTING_DESCS = {
+  1:  "Sesja z porannego światła przy kuchennym oknie. 12 zdjęć w pełnej rozdzielczości, bez filtrów — tylko kawa, promienie i świeżo zadbane stopy. Dostawa cyfrowa od razu po zakupie.",
+  2:  "Czarny koronkowy komplet z mojej prywatnej kolekcji, noszony przez pełne 48 godzin. Pakowany próżniowo w jedwabny papier, wysyłka w neutralnym kartonie bez logo.",
+  3:  "Osiem zdjęć zrobionych o świcie po dwunastogodzinnej zmianie + dwa bonusowe dla cierpliwych. Naturalne światło, zero retuszu, rozmiar 37.",
+  4:  "Zakolanówki z miękkiej bawełny po całym dniu wykładów i spacerów po mieście. Do paczki dorzucam odręczny liścik i małą niespodziankę.",
+  5:  "Sześć minut rozgrzewki na pointach nagrane w studiu baletowym. Osiem lat treningu w jednym ujęciu — od rozciągania po pierwsze piruety. Full HD, pion.",
+  6:  "Limitowany komplet z czarnej satyny — do sprzedania tylko dwie sztuki. W zestawie sesja 10 zdjęć w tym komplecie. Elegancja albo nic.",
+  7:  "Piętnaście zdjęć świeżego pedicure w wiśniowym lakierze — zbliżenia, pełne kadry, światło dzienne. Mój bestseller w nowej odsłonie.",
+  8:  "Stringi z limitowanej serii, których nie kupisz już w sklepie. Noszone dobę, pakowane dyskretnie, z odręcznym liścikiem na perfumowanym papierze.",
+  9:  "Skarpetki frotte prosto po 10 kilometrach porannego biegu. Wysyłka tego samego dnia w szczelnym opakowaniu — świeżość gwarantowana.",
+  10: "Cztery minuty wideo: stopy w jedwabnej pościeli, poranne przeciąganie się, gra świateł. Nagrane telefonem, ale w 4K — intymnie i naturalnie.",
+  11: "Zestaw tygodniowy: pięć par noszonych skarpetek + galeria 20 zdjęć dokumentujących każdy dzień. Dla kolekcjonerów — komplet z certyfikatem autentyczności.",
+  12: "Baletki po całej próbie spektaklu + sesja ośmiu zdjęć w studiu. Ślady ośmiu lat baletu w jednej parze — dla koneserów.",
+};
+
+// opinie kupujących (fikcyjne)
+const REVIEWS = {
+  1: [
+    { buyer: "Misiek_88",  stars: 5, when: "3 dni temu",   text: "Piękne światło, świetna jakość zdjęć. Malina odpisuje szybko i z klasą." },
+    { buyer: "Wilk_z_Woli", stars: 5, when: "tydzień temu", text: "Druga sesja którą kupuję i na pewno nie ostatnia. Polecam." },
+  ],
+  2: [
+    { buyer: "Dyskretny_K", stars: 5, when: "2 dni temu",  text: "Pakowanie na najwyższym poziomie, przesyłka w 24h. Pełen profesjonalizm." },
+    { buyer: "NocnyMarek",  stars: 4, when: "5 dni temu",  text: "Jakość super, czekałem tylko trochę dłużej niż zapowiadane 2 dni." },
+  ],
+  5: [
+    { buyer: "Balet_Fan",   stars: 5, when: "wczoraj",     text: "Widać lata treningu. Najlepsze wideo w tej kategorii, kupuję wszystko od Balerinki." },
+  ],
+  6: [
+    { buyer: "Esteta_44",   stars: 5, when: "4 dni temu",  text: "Satyna, klasa, dyskrecja. PaniW nie schodzi poniżej pewnego poziomu." },
+  ],
+  7: [
+    { buyer: "Misiek_88",   stars: 5, when: "tydzień temu", text: "Wiśniowy lakier to strzał w dziesiątkę. Zbliżenia ostre jak brzytwa." },
+  ],
+  10: [
+    { buyer: "Świt_i_Ja",   stars: 4, when: "3 dni temu",  text: "Klimat wideo świetny, jedwab robi robotę. Chętnie zobaczę dłuższą wersję." },
+  ],
+};
+
+// gotowe odpowiedzi sprzedawczyń w mocku czatu (rotacyjnie)
+const CHAT_REPLIES = [
+  "Hej! Miło, że piszesz 😊 Śmiało — w czym mogę pomóc?",
+  "Jasne, wszystko co widzisz w moim katalogu jest aktualne. Coś konkretnego Cię kusi?",
+  "Mogę przygotować coś na zamówienie — opisz, o czym myślisz, a wycenię. Budżet ustalamy z góry.",
+  "Wysyłka zawsze dyskretna, neutralny karton, nadanie w 24–48h od zakupu.",
+  "Dziękuję! Wpadnij też na moje zajawki — tam zawsze najpierw pokazuję nowości ✨",
+];
+
 // zajawki — krótkie wideo promocyjne sprzedawczyń (w prototypie: animowany atłas)
 const SHORTS = [
   { id: 1, seller: "malina",    listing: 1,  dur: 8,  seed: 31, views: 12400, likes: 980,

@@ -32,6 +32,7 @@
     <a href="#" data-nav="home" class="nav-link active">Start</a>
     <a href="#" data-nav="shorts" class="nav-link">Zajawki</a>
     <a href="#" data-nav="browse" class="nav-link">Katalog</a>
+    <a href="#" data-nav="messages" class="nav-link">Wiadomości</a>
     <a href="#" data-nav="sellers" class="nav-link">Dla sprzedawczyń</a>
     <a href="#" data-nav="safety" class="nav-link">Bezpieczeństwo</a>
   </nav>
@@ -114,8 +115,37 @@
   <div class="section">
     <p class="eyebrow">Katalog</p>
     <h2 class="h2">Wybierz, co Cię <em>kusi</em></h2>
+    <div class="browse-controls">
+      <input type="search" id="browse-search" class="input input-search"
+             placeholder="Szukaj oferty albo sprzedawczyni…" aria-label="Szukaj w katalogu">
+      <select id="browse-sort" class="input input-sort" aria-label="Sortowanie">
+        <option value="featured">Polecane</option>
+        <option value="new">Najnowsze</option>
+        <option value="price-asc">Cena: od najniższej</option>
+        <option value="price-desc">Cena: od najwyższej</option>
+        <option value="popular">Najpopularniejsze</option>
+      </select>
+    </div>
     <div class="filters" id="filters"></div>
     <div class="grid" id="browse-grid"></div>
+    <p class="browse-empty" id="browse-empty" hidden>Nic nie znaleziono — spróbuj innej frazy albo zmień kategorię.</p>
+  </div>
+</section>
+
+<!-- ══════════ WIDOK: OFERTA ══════════ -->
+<section class="view" id="view-listing">
+  <div class="section" id="listing-root"></div>
+</section>
+
+<!-- ══════════ WIDOK: WIADOMOŚCI ══════════ -->
+<section class="view" id="view-messages">
+  <div class="section">
+    <p class="eyebrow">Wiadomości</p>
+    <h2 class="h2">Rozmowy <em>szeptem</em></h2>
+    <div class="chat-shell" id="chat-shell">
+      <aside class="chat-list" id="chat-list" aria-label="Lista rozmów"></aside>
+      <div class="chat-pane" id="chat-pane"></div>
+    </div>
   </div>
 </section>
 

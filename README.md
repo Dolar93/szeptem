@@ -26,9 +26,19 @@ npx serve -l 4174 .
   (Malina): statystyki (sprzedaże, 85% obrotu, wyświetlenia zajawek),
   formularz nowej zajawki (opis + licznik znaków, promowana oferta, długość,
   losowany „atłas" z podglądem), mock moderacji (4 s) i lista własnych
-  zajawek z usuwaniem; opublikowane trafiają na górę feedu (localStorage)
+  zajawek z usuwaniem; opublikowane trafiają na górę feedu (localStorage);
+  wykres 7 dni „wyświetlenia → wejścia na profil" + lejek konwersji
+  (paleta serii zwalidowana pod CVD na tle panelu)
 - **Katalog** — 12 przykładowych ofert, filtry kategorii (stópki / bielizna /
-  skarpetki / zestawy / video)
+  skarpetki / zestawy / video), wyszukiwarka (tytuł + sprzedawczyni)
+  i sortowanie (cena, popularność, najnowsze)
+- **Strona oferty** — galeria „za zasłoną" z 4 podglądami, opis, cena,
+  opinie kupujących, karta sprzedawczyni, oferty powiązane
+- **Wiadomości 1:1** — mock czatu ze sprzedawczyniami: lista rozmów,
+  dymki, automatyczne odpowiedzi po ~2 s, wejście z profilu i strony oferty
+- **Obserwowanie + powiadomienia** — przycisk „Obserwuj" na profilu,
+  dzwonek w nagłówku z licznikiem nieprzeczytanych, mock powiadomień
+  (nowa zajawka obserwowanej, nowa wiadomość, wynik moderacji)
 - **Profil sprzedawczyni** — pseudonim, bio, statystyki, jej oferty
 - **Modal zakupu** — mock płatności (karta / portfel / krypto) z komunikatem
   o neutralnej nazwie na wyciągu

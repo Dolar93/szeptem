@@ -25,6 +25,7 @@
     window.scrollTo({ top: 0, behavior: "instant" });
     // feed zajawek dostaje wymiary dopiero po pokazaniu widoku
     if (view === "shorts") setTimeout(updatePlayingShort);
+    if (view === "messages") renderChats();
   }
 
   document.addEventListener("click", e => {
@@ -39,6 +40,7 @@
     <a href="#" data-nav="home" class="active">Start</a>
     <a href="#" data-nav="shorts">Zajawki</a>
     <a href="#" data-nav="browse">Katalog</a>
+    <a href="#" data-nav="messages">Czat</a>
     <a href="#" data-nav="sellers">Sprzedaż</a>
     <a href="#" data-nav="safety">Zasady</a>`;
   document.body.appendChild(mobileNav);
@@ -75,13 +77,13 @@
     return `
       <article class="listing">
         <div class="veil-card" style="${veilVars(l.seed)}" tabindex="0" role="button"
-             aria-label="Kup: ${l.title}" data-buy="${l.id}">
+             aria-label="Zobacz ofertę: ${l.title}" data-listing="${l.id}">
           <span class="listing-tag">${catLabel(l.cat)}</span>
           <div class="veil-art"></div>
           <div class="veil-cover">
             <svg class="icon-lock" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z"/></svg>
             <span>Za zasłoną</span>
-            <small>kliknij, aby kupić</small>
+            <small>zobacz szczegóły</small>
           </div>
           <span class="listing-price">${l.price} zł</span>
         </div>
@@ -110,11 +112,107 @@
     `<button class="filter-chip${c.id === "all" ? " active" : ""}" data-cat="${c.id}">${c.label}</button>`
   ).join("");
 
+  const searchEl = document.getElementById("browse-search");
+  const sortEl = document.getElementById("browse-sort");
+  const browseEmptyEl = document.getElementById("browse-empty");
+
   function renderBrowse() {
-    const items = activeCat === "all" ? LISTINGS : LISTINGS.filter(l => l.cat === activeCat);
+    let items = activeCat === "all" ? [...LISTINGS] : LISTINGS.filter(l => l.cat === activeCat);
+    const q = searchEl.value.trim().toLowerCase();
+    if (q) items = items.filter(l =>
+      l.title.toLowerCase().includes(q) || SELLERS[l.seller].handle.toLowerCase().includes(q));
+    switch (sortEl.value) {
+      case "new":        items.reverse(); break;
+      case "price-asc":  items.sort((a, b) => a.price - b.price); break;
+      case "price-desc": items.sort((a, b) => b.price - a.price); break;
+      case "popular":    items.sort((a, b) => SELLERS[b.seller].sales - SELLERS[a.seller].sales); break;
+    }
     renderGrid(browseGrid, items);
+    browseEmptyEl.hidden = items.length > 0;
   }
   renderBrowse();
+  searchEl.addEventListener("input", renderBrowse);
+  sortEl.addEventListener("change", renderBrowse);
+
+  // ── strona oferty ──
+  const listingRoot = document.getElementById("listing-root");
+
+  const stars = n =>
+    `<span class="stars" aria-label="${n} na 5 gwiazdek">${"★".repeat(n)}${"☆".repeat(5 - n)}</span>`;
+
+  function renderListing(id) {
+    const l = LISTINGS.find(x => x.id === Number(id));
+    const s = SELLERS[l.seller];
+    const revs = REVIEWS[l.id] || [];
+    const others = LISTINGS.filter(x => x.seller === l.seller && x.id !== l.id).slice(0, 4);
+    const seeds = [l.seed, l.seed + 41, l.seed + 83, l.seed + 127];
+    listingRoot.innerHTML = `
+      <a class="back-link" href="#" data-nav="browse">← Wróć do katalogu</a>
+      <div class="listing-page">
+        <div class="listing-gallery">
+          <div class="veil-card listing-main" id="listing-main" style="${veilVars(seeds[0])}">
+            <span class="listing-tag">${catLabel(l.cat)}</span>
+            <div class="veil-art"></div>
+            <div class="veil-cover">
+              <svg class="icon-lock" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5Zm-3 8V7a3 3 0 1 1 6 0v3H9Z"/></svg>
+              <span>Za zasłoną</span>
+              <small>pełna galeria po zakupie</small>
+            </div>
+          </div>
+          <div class="listing-thumbs">
+            ${seeds.map((sd, i) => `
+              <button class="listing-thumb${i === 0 ? " active" : ""}" data-thumb="${sd}"
+                      style="${veilVars(sd)}" aria-label="Podgląd ${i + 1} z ${seeds.length}">
+                <span class="veil-art"></span>
+              </button>`).join("")}
+          </div>
+        </div>
+        <div class="listing-info">
+          <p class="eyebrow">${catLabel(l.cat)}</p>
+          <h2 class="h2 listing-h">${l.title}</h2>
+          <div class="listing-page-price">${l.price} zł</div>
+          <p class="listing-desc">${LISTING_DESCS[l.id] || ""}</p>
+          <div class="listing-cta">
+            <button class="btn btn-gold" data-buy="${l.id}">Kup teraz · ${l.price} zł</button>
+          </div>
+          <div class="seller-mini">
+            <span class="avatar avatar-xs" style="--c1:${s.c1};--c2:${s.c2}">${s.handle[0]}</span>
+            <div class="seller-mini-meta">
+              <a href="#" data-profile="${l.seller}">${s.handle} <span class="badge-verified" title="Zweryfikowana">✓</span></a>
+              <span>${s.sales} sprzedaży · na szeptem od ${s.joined}</span>
+            </div>
+            <button class="btn btn-ghost btn-sm" data-chat="${l.seller}">Napisz</button>
+          </div>
+        </div>
+      </div>
+      <section class="listing-reviews">
+        <h3>Opinie (${revs.length})</h3>
+        ${revs.length
+          ? revs.map(r => `
+            <div class="review">
+              <div class="review-head">${stars(r.stars)} <b>${r.buyer}</b> <span>${r.when}</span></div>
+              <p>${r.text}</p>
+            </div>`).join("")
+          : `<p class="panel-empty">Ta oferta nie ma jeszcze opinii — bądź pierwszy.</p>`}
+      </section>
+      ${others.length ? `
+        <section class="listing-more">
+          <h3>Więcej od ${s.handle}</h3>
+          <div class="grid">${others.map(listingCard).join("")}</div>
+        </section>` : ""}`;
+    show("listing");
+  }
+
+  document.addEventListener("click", e => {
+    const open = e.target.closest("[data-listing]");
+    if (open) { e.preventDefault(); renderListing(open.dataset.listing); return; }
+    const thumb = e.target.closest("[data-thumb]");
+    if (thumb) {
+      document.getElementById("listing-main").setAttribute("style", veilVars(Number(thumb.dataset.thumb)));
+      document.querySelectorAll(".listing-thumb").forEach(t =>
+        t.classList.toggle("active", t === thumb));
+    }
+  });
 
   filtersEl.addEventListener("click", e => {
     const chip = e.target.closest(".filter-chip");
@@ -187,7 +285,7 @@
           </a>
           <p class="short-caption">${sh.caption}</p>
           <div class="short-actions">
-            <button class="btn btn-gold btn-sm" data-buy="${l.id}">Oferta z zajawki · ${l.price} zł</button>
+            <button class="btn btn-gold btn-sm" data-listing="${l.id}">Oferta z zajawki · ${l.price} zł</button>
             <a class="btn btn-ghost btn-sm" href="#" data-profile="${sh.seller}">Profil</a>
           </div>
         </div>
@@ -278,21 +376,217 @@
     toastTimer = setTimeout(() => el.classList.remove("show"), 2400);
   }
 
+  // ── obserwowanie sprzedawczyń + powiadomienia ──
+  const FOLLOWS_KEY = "szeptem-follows";
+  const NOTIFS_KEY = "szeptem-notifs";
+  let follows = [];
+  let notifs = [];
+  try { follows = JSON.parse(localStorage.getItem(FOLLOWS_KEY)) || []; } catch (e) { /* uszkodzony zapis */ }
+  try { notifs = JSON.parse(localStorage.getItem(NOTIFS_KEY)) || []; } catch (e) { /* uszkodzony zapis */ }
+
+  function saveNotifs() { localStorage.setItem(NOTIFS_KEY, JSON.stringify(notifs.slice(0, 20))); }
+
+  function addNotif(text, view) {
+    notifs.unshift({ text, view, read: false });
+    notifs = notifs.slice(0, 20);
+    saveNotifs();
+    renderBell();
+  }
+
+  function renderBell() {
+    const badge = document.getElementById("bell-badge");
+    if (!badge) return;
+    const unread = notifs.filter(n => !n.read).length;
+    badge.textContent = unread;
+    badge.hidden = unread === 0;
+  }
+
+  document.addEventListener("click", e => {
+    const follow = e.target.closest("[data-follow]");
+    if (follow) {
+      const id = follow.dataset.follow;
+      const s = SELLERS[id];
+      if (follows.includes(id)) {
+        follows = follows.filter(x => x !== id);
+        toast(`Już nie obserwujesz ${s.handle}`);
+      } else {
+        follows.push(id);
+        toast(`Obserwujesz ${s.handle} — damy znać o nowościach`);
+        // mock: chwilę po zaobserwowaniu przychodzi znak życia
+        setTimeout(() => addNotif(`${s.handle} dodała nową zajawkę ✨`, "shorts"), 9000);
+      }
+      localStorage.setItem(FOLLOWS_KEY, JSON.stringify(follows));
+      follow.textContent = follows.includes(id) ? "Obserwujesz ✓" : "Obserwuj";
+      follow.classList.toggle("following", follows.includes(id));
+      return;
+    }
+
+    const menu = document.getElementById("bell-menu");
+    if (e.target.closest("#btn-bell") && menu) {
+      menu.hidden = !menu.hidden;
+      if (!menu.hidden) {
+        menu.innerHTML = notifs.length
+          ? notifs.map((n, i) =>
+              `<button class="bell-item${n.read ? "" : " unread"}" data-notif="${i}">${n.text}</button>`).join("")
+          : `<p class="bell-none">Cisza. Zaobserwuj sprzedawczynię, żeby dostawać znaki życia.</p>`;
+        notifs.forEach(n => n.read = true);
+        saveNotifs();
+        renderBell();
+      }
+      return;
+    }
+    const notifBtn = e.target.closest("[data-notif]");
+    if (notifBtn && menu) {
+      menu.hidden = true;
+      const n = notifs[Number(notifBtn.dataset.notif)];
+      if (n.view === "messages") renderChats();
+      show(n.view);
+      return;
+    }
+    if (menu && !menu.hidden && !e.target.closest(".bell-wrap")) menu.hidden = true;
+  });
+
+  // ── wiadomości 1:1 (mock) ──
+  const chatListEl = document.getElementById("chat-list");
+  const chatPaneEl = document.getElementById("chat-pane");
+  const chatShellEl = document.getElementById("chat-shell");
+  const CHATS_KEY = "szeptem-chats";
+  let chats = {};
+  try { chats = JSON.parse(localStorage.getItem(CHATS_KEY)) || {}; } catch (e) { /* uszkodzony zapis */ }
+  let activeChat = null;
+
+  const saveChats = () => localStorage.setItem(CHATS_KEY, JSON.stringify(chats));
+  const isLogged = () => !!(sessionStorage.getItem(LOGIN_KEY) || sessionStorage.getItem(SELLER_KEY));
+
+  function renderChats() {
+    // mobile: pokazuj panel rozmowy, gdy jest aktywna albo trzeba się zalogować
+    chatShellEl.classList.toggle("show-pane", !isLogged() || !!activeChat);
+    if (!isLogged()) {
+      chatListEl.innerHTML = "";
+      chatPaneEl.innerHTML = `
+        <div class="chat-empty">
+          <p>Zaloguj się, żeby pisać ze sprzedawczyniami.</p>
+          <button class="btn btn-gold btn-sm" id="chat-login">Zaloguj</button>
+        </div>`;
+      document.getElementById("chat-login").addEventListener("click", () => {
+        sessionStorage.setItem(LOGIN_KEY, "1");
+        renderTopbar();
+        renderChats();
+        toast("Zalogowano (prototyp)");
+      });
+      return;
+    }
+
+    const ids = Object.keys(chats);
+    chatListEl.innerHTML = ids.length
+      ? ids.map(id => {
+          const s = SELLERS[id];
+          const last = chats[id][chats[id].length - 1];
+          const preview = last.text.length > 34 ? last.text.slice(0, 34) + "…" : last.text;
+          return `
+            <button class="chat-item${id === activeChat ? " active" : ""}" data-open-chat="${id}">
+              <span class="avatar avatar-xs" style="--c1:${s.c1};--c2:${s.c2}">${s.handle[0]}</span>
+              <span class="chat-item-meta"><b>${s.handle}</b><span>${preview}</span></span>
+            </button>`;
+        }).join("")
+      : `<p class="chat-none">Brak rozmów. Napisz do sprzedawczyni z jej profilu albo ze strony oferty.</p>`;
+
+    if (!activeChat) {
+      chatPaneEl.innerHTML = `<div class="chat-empty"><p>Wybierz rozmowę z listy obok.</p></div>`;
+      return;
+    }
+
+    const s = SELLERS[activeChat];
+    chatPaneEl.innerHTML = `
+      <div class="chat-head">
+        <button class="chat-back" id="chat-back" aria-label="Wróć do listy rozmów">←</button>
+        <span class="avatar avatar-xs" style="--c1:${s.c1};--c2:${s.c2}">${s.handle[0]}</span>
+        <a href="#" data-profile="${activeChat}">${s.handle} <span class="badge-verified" title="Zweryfikowana">✓</span></a>
+      </div>
+      <div class="chat-msgs" id="chat-msgs">
+        ${chats[activeChat].map(m => `<div class="msg ${m.from}">${m.text}</div>`).join("")}
+      </div>
+      <form class="chat-form" id="chat-form">
+        <input class="input" id="chat-input" placeholder="Napisz wiadomość…" autocomplete="off" maxlength="300">
+        <button class="btn btn-gold btn-sm" type="submit">Wyślij</button>
+      </form>`;
+    const msgs = document.getElementById("chat-msgs");
+    msgs.scrollTop = msgs.scrollHeight;
+
+    document.getElementById("chat-back").addEventListener("click", () => {
+      activeChat = null;
+      chatShellEl.classList.remove("show-pane");
+      renderChats();
+    });
+    document.getElementById("chat-form").addEventListener("submit", e => {
+      e.preventDefault();
+      const text = document.getElementById("chat-input").value.trim();
+      if (!text) return;
+      const seller = activeChat;
+      chats[seller].push({ from: "me", text });
+      saveChats();
+      renderChats();
+      const inp = document.getElementById("chat-input");
+      if (inp) inp.focus();
+      // mock odpowiedzi — sprzedawczyni odpisuje po chwili
+      setTimeout(() => {
+        const herCount = chats[seller].filter(m => m.from === "her").length;
+        chats[seller].push({ from: "her", text: CHAT_REPLIES[herCount % CHAT_REPLIES.length] });
+        saveChats();
+        const viewActive = document.getElementById("view-messages").classList.contains("active");
+        if (viewActive && activeChat === seller) renderChats();
+        else addNotif(`Nowa wiadomość od ${SELLERS[seller].handle}`, "messages");
+      }, 1800);
+    });
+  }
+
+  function openChat(sellerId) {
+    if (!isLogged()) { toast("Zaloguj się, żeby napisać wiadomość"); return; }
+    if (!chats[sellerId]) {
+      chats[sellerId] = [{ from: "her", text: CHAT_REPLIES[0] }];
+      saveChats();
+    }
+    activeChat = sellerId;
+    chatShellEl.classList.add("show-pane");
+    renderChats();
+    show("messages");
+  }
+
+  document.addEventListener("click", e => {
+    const chat = e.target.closest("[data-chat]");
+    if (chat) { e.preventDefault(); openChat(chat.dataset.chat); return; }
+    const item = e.target.closest("[data-open-chat]");
+    if (item) {
+      activeChat = item.dataset.openChat;
+      chatShellEl.classList.add("show-pane");
+      renderChats();
+    }
+  });
+
   // ── mock logowania: kupujący startuje w zajawkach, sprzedawczyni w panelu ──
   const topbarActions = document.getElementById("topbar-actions");
   const LOGIN_KEY = "szeptem-login";
   const SELLER_KEY = "szeptem-seller";
   const DEMO_SELLER = "malina"; // konto demo panelu sprzedawczyni
 
+  const bellHtml = `
+    <span class="bell-wrap">
+      <button class="bell" id="btn-bell" aria-label="Powiadomienia">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 22a2.3 2.3 0 0 0 2.3-2.3H9.7A2.3 2.3 0 0 0 12 22Zm7-5.3v-1l-1.7-1.8V9.6c0-3-1.6-5.5-4.3-6.2V3a1 1 0 1 0-2 0v.4C8.3 4.1 6.7 6.6 6.7 9.6v4.3L5 15.7v1h14Z"/></svg>
+        <b class="bell-badge" id="bell-badge" hidden></b>
+      </button>
+      <div class="bell-menu" id="bell-menu" hidden></div>
+    </span>`;
+
   function renderTopbar() {
     if (sessionStorage.getItem(SELLER_KEY)) {
       const s = SELLERS[DEMO_SELLER];
-      topbarActions.innerHTML = `
+      topbarActions.innerHTML = `${bellHtml}
         <span class="user-chip"><span class="avatar avatar-xs" style="--c1:${s.c1};--c2:${s.c2}">${s.handle[0]}</span><i class="user-chip-name">${s.handle}</i></span>
         <button class="btn btn-gold btn-sm" id="btn-panel">Panel</button>
         <button class="btn btn-ghost btn-sm" id="btn-logout">Wyloguj</button>`;
     } else if (sessionStorage.getItem(LOGIN_KEY)) {
-      topbarActions.innerHTML = `
+      topbarActions.innerHTML = `${bellHtml}
         <span class="user-chip"><span class="avatar avatar-xs" style="--c1:#7d5a9e;--c2:#d8b07e">M</span><i class="user-chip-name">Misiek_88</i></span>
         <button class="btn btn-ghost btn-sm" id="btn-logout">Wyloguj</button>`;
     } else {
@@ -300,6 +594,7 @@
         <button class="btn btn-ghost btn-sm" id="btn-login">Zaloguj</button>
         <button class="btn btn-gold btn-sm" data-nav="sellers">Zacznij sprzedawać</button>`;
     }
+    renderBell();
   }
   renderTopbar();
 
@@ -343,6 +638,32 @@
     const avgPrice = Math.round(myListings.reduce((sum, l) => sum + l.price, 0) / myListings.length);
     const earnings = Math.round(s.sales * avgPrice * 0.85);
 
+    // 7-dniowy mock lejka: wyświetlenia zajawek → wejścia na profil → zakupy
+    // (deterministyczny — rng z data.js; paleta zwalidowana na tle panelu)
+    const days = ["pn", "wt", "śr", "cz", "pt", "so", "nd"];
+    const r7 = rng(97);
+    const dayViews = days.map(() => Math.round(shortViews / 9 + r7() * (shortViews / 6)));
+    const dayVisits = dayViews.map(v => Math.round(v * (0.30 + r7() * 0.14)));
+    const totalViews = dayViews.reduce((a, b) => a + b, 0);
+    const totalVisits = dayVisits.reduce((a, b) => a + b, 0);
+    const purchases = Math.max(3, Math.round(totalVisits * 0.05));
+    const maxV = Math.max(...dayViews);
+
+    const gridLines = [0, 0.5, 1].map(f => {
+      const y = 150 - Math.round(f * 130);
+      return `<line x1="30" x2="550" y1="${y}" y2="${y}" class="chart-grid"/>` +
+        `<text x="26" y="${y + 3}" class="chart-y" text-anchor="end">${fmtCount(Math.round(maxV * f))}</text>`;
+    }).join("");
+    const chartBars = days.map((d, i) => {
+      const gx = 34 + i * 74;
+      const hV = Math.max(3, Math.round(dayViews[i] / maxV * 130));
+      const hP = Math.max(3, Math.round(dayVisits[i] / maxV * 130));
+      return `
+        <rect x="${gx + 14}" y="${150 - hV}" width="18" height="${hV}" rx="3" fill="#d9689a"><title>${d}: ${dayViews[i]} wyświetleń zajawek</title></rect>
+        <rect x="${gx + 34}" y="${150 - hP}" width="18" height="${hP}" rx="3" fill="#c08434"><title>${d}: ${dayVisits[i]} wejść na profil</title></rect>
+        <text x="${gx + 33}" y="172" class="chart-x" text-anchor="middle">${d}</text>`;
+    }).join("");
+
     const rows = myShorts.map(sh => `
       <li class="myshort-row">
         <span class="myshort-veil" style="${veilVars(sh.seed)}"><span class="veil-art"></span></span>
@@ -372,6 +693,25 @@
         <div class="stat-tile"><strong>${fmtCount(shortViews)}</strong><span>wyświetleń zajawek</span></div>
         <div class="stat-tile"><strong>${myListings.length}</strong><span>${plural(myListings.length, "oferta", "oferty", "ofert")} w katalogu</span></div>
       </div>
+
+      <section class="panel-card panel-chart">
+        <h3>Skuteczność zajawek — ostatnie 7 dni</h3>
+        <div class="chart-legend">
+          <span><i style="background:#d9689a"></i>Wyświetlenia zajawek</span>
+          <span><i style="background:#c08434"></i>Wejścia na profil</span>
+        </div>
+        <svg class="chart" viewBox="0 0 560 190" role="img"
+             aria-label="Wykres słupkowy: dzienne wyświetlenia zajawek i wejścia na profil w ostatnich 7 dniach">
+          ${gridLines}${chartBars}
+        </svg>
+        <div class="funnel">
+          <div class="funnel-step"><b>${fmtCount(totalViews)}</b><span>wyświetleń zajawek</span></div>
+          <div class="funnel-arrow">→ ${Math.round(totalVisits / totalViews * 100)}%</div>
+          <div class="funnel-step"><b>${fmtCount(totalVisits)}</b><span>wejść na profil</span></div>
+          <div class="funnel-arrow">→ ${(purchases / totalVisits * 100).toFixed(1).replace(".", ",")}%</div>
+          <div class="funnel-step"><b>${purchases}</b><span>${plural(purchases, "zakup", "zakupy", "zakupów")} z zajawek</span></div>
+        </div>
+      </section>
 
       <div class="panel-cols">
         <section class="panel-card">
@@ -453,6 +793,7 @@
         renderFeed();
         if (document.getElementById("view-panel").classList.contains("active")) renderPanel();
         toast("Zajawka przeszła moderację — jest w feedzie ✓");
+        addNotif("Twoja zajawka przeszła moderację i jest w feedzie", "shorts");
       }, 4000);
     });
   }
@@ -491,6 +832,11 @@
             <span><b>${items.length}</b> ${plural(items.length, "oferta", "oferty", "ofert")} w katalogu</span>
             <span><b>${s.sales}</b> sprzedaży</span>
             <span>na szeptem od <b>${s.joined}</b></span>
+          </div>
+          <div class="profile-actions">
+            <button class="btn btn-gold btn-sm" data-chat="${id}">Napisz wiadomość</button>
+            <button class="btn btn-ghost btn-sm follow-btn${follows.includes(id) ? " following" : ""}" data-follow="${id}">
+              ${follows.includes(id) ? "Obserwujesz ✓" : "Obserwuj"}</button>
           </div>
         </div>
       </div>
@@ -536,8 +882,9 @@
     if (buy) openBuy(buy.dataset.buy);
   });
   document.addEventListener("keydown", e => {
-    if (e.key === "Enter" && document.activeElement && document.activeElement.dataset.buy) {
-      openBuy(document.activeElement.dataset.buy);
+    if (e.key === "Enter" && document.activeElement && document.activeElement.dataset.listing
+        && document.activeElement.tagName !== "BUTTON") {
+      renderListing(document.activeElement.dataset.listing);
     }
     if (e.key === "Enter" && document.activeElement && document.activeElement.classList.contains("short-tap")) {
       renderProfile(document.activeElement.dataset.profile);
