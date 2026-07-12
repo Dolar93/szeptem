@@ -332,6 +332,10 @@
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M14 3v4C6 8 3 13 3 19c2.5-3.4 5.5-5 11-5v4l7-7.5L14 3Z"/></svg>
             <b>Wyślij</b>
           </button>
+          <button class="rail-btn" data-tip="${sh.seller}" aria-label="Wyślij napiwek">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path fill="currentColor" d="M9.2 15.5v-1.3l3.5-4.1H9.4V8.5h5.4v1.3l-3.5 4.1h3.6v1.6H9.2Z"/></svg>
+            <b>Napiwek</b>
+          </button>
           <span class="rail-btn rail-views" title="Wyświetlenia">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7L8 5Z"/></svg>
             <b>${fmtCount(sh.views)}</b>
@@ -561,6 +565,7 @@
         <button class="chat-back" id="chat-back" aria-label="Wróć do listy rozmów">←</button>
         <span class="avatar avatar-xs" style="--c1:${s.c1};--c2:${s.c2}">${s.handle[0]}</span>
         <a href="#" data-profile="${activeChat}">${s.handle} <span class="badge-verified" title="Zweryfikowana">✓</span></a>
+        <button class="btn btn-ghost btn-sm chat-tip" data-tip="${activeChat}">Napiwek 🪙</button>
       </div>
       <div class="chat-msgs" id="chat-msgs">
         ${chats[activeChat].map(m => `<div class="msg ${m.from}">${m.text}</div>`).join("")}
@@ -622,6 +627,159 @@
     }
   });
 
+  // ── subskrypcje + napiwki (mock) ──
+  const SUBS_KEY = "szeptem-subs";
+  let mySubs = [];
+  try { mySubs = JSON.parse(localStorage.getItem(SUBS_KEY)) || []; } catch (e) { /* uszkodzony zapis */ }
+  const saveSubs = () => localStorage.setItem(SUBS_KEY, JSON.stringify(mySubs));
+
+  const subLabel = id =>
+    mySubs.includes(id) ? "Subskrybujesz ✓" : `Subskrybuj · ${SELLERS[id].sub} zł/mies.`;
+
+  function refreshSubButtons(id) {
+    document.querySelectorAll(`[data-sub="${id}"]`).forEach(b => {
+      b.textContent = subLabel(id);
+      b.classList.toggle("following", mySubs.includes(id));
+    });
+  }
+
+  function openSubModal(id) {
+    const s = SELLERS[id];
+    if (mySubs.includes(id)) {
+      mySubs = mySubs.filter(x => x !== id);
+      saveSubs();
+      refreshSubButtons(id);
+      toast(`Subskrypcja ${s.handle} anulowana`);
+      return;
+    }
+    modalBody.innerHTML = `
+      <h3>Subskrypcja: ${s.handle}</h3>
+      <p class="modal-seller">miesięczny dostęp zamiast pojedynczych zakupów</p>
+      <div class="modal-price">${s.sub} zł<small class="modal-permo"> / mies.</small></div>
+      <ul class="sub-benefits">
+        <li>Wszystkie treści z profilu bez dopłat</li>
+        <li>Nowe zajawki i oferty 24 h przed innymi</li>
+        <li>Priorytetowe odpowiedzi na czacie</li>
+        <li>Anulujesz jednym kliknięciem, kiedy chcesz</li>
+      </ul>
+      <button class="btn btn-gold btn-block" id="sub-confirm">Subskrybuję · ${s.sub} zł/mies.</button>
+      <p class="modal-note">Prototyp — żadna płatność nie zostanie pobrana.</p>`;
+    modal.hidden = false;
+    document.getElementById("sub-confirm").addEventListener("click", () => {
+      mySubs.push(id);
+      saveSubs();
+      modal.hidden = true;
+      refreshSubButtons(id);
+      toast(`Subskrybujesz ${s.handle} 💛`);
+    });
+  }
+
+  function openTipModal(id) {
+    const s = SELLERS[id];
+    modalBody.innerHTML = `
+      <h3>Napiwek dla ${s.handle}</h3>
+      <p class="modal-seller">drobny gest, wielki uśmiech</p>
+      <div class="tip-amounts">
+        <button class="tip-amount" data-amount="10">10 zł</button>
+        <button class="tip-amount active" data-amount="20">20 zł</button>
+        <button class="tip-amount" data-amount="50">50 zł</button>
+        <input class="input tip-custom" id="tip-custom" type="number" min="5" max="500" placeholder="inna" aria-label="Własna kwota">
+      </div>
+      <button class="btn btn-gold btn-block" id="tip-confirm">Wyślij napiwek</button>
+      <p class="modal-note">Prototyp — żadna płatność nie zostanie pobrana.</p>`;
+    modal.hidden = false;
+    let amount = 20;
+    const amounts = modalBody.querySelectorAll(".tip-amount");
+    amounts.forEach(b => b.addEventListener("click", () => {
+      amount = Number(b.dataset.amount);
+      amounts.forEach(x => x.classList.toggle("active", x === b));
+      document.getElementById("tip-custom").value = "";
+    }));
+    document.getElementById("tip-custom").addEventListener("input", e => {
+      amount = Number(e.target.value) || 0;
+      amounts.forEach(x => x.classList.remove("active"));
+    });
+    document.getElementById("tip-confirm").addEventListener("click", () => {
+      if (amount < 5) { toast("Minimalny napiwek to 5 zł"); return; }
+      modal.hidden = true;
+      if (chats[id]) {
+        chats[id].push({ from: "me", text: `🪙 Napiwek ${amount} zł` });
+        saveChats();
+        if (document.getElementById("view-messages").classList.contains("active")) renderChats();
+      }
+      toast(`Napiwek ${amount} zł dla ${s.handle} wysłany 💛`);
+    });
+  }
+
+  document.addEventListener("click", e => {
+    const sub = e.target.closest("[data-sub]");
+    if (sub) { e.preventDefault(); openSubModal(sub.dataset.sub); return; }
+    const tip = e.target.closest("[data-tip]");
+    if (tip) { e.preventDefault(); openTipModal(tip.dataset.tip); }
+  });
+
+  // ── onboarding demo: jak wygląda weryfikacja sprzedawczyni ──
+  function kycScanStep(title, hint, next) {
+    modalBody.innerHTML = `
+      <h3>${title}</h3>
+      <p class="modal-seller">${hint}</p>
+      <button class="kyc-drop" id="kyc-drop">
+        <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path fill="currentColor" d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4ZM9 3 7.2 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9Zm3 15.4A6.4 6.4 0 1 1 12 5.6a6.4 6.4 0 0 1 0 12.8Z"/></svg>
+        <span>Kliknij, aby zrobić zdjęcie</span>
+      </button>
+      <div class="kyc-progress" id="kyc-progress" hidden><i></i></div>
+      <p class="modal-note">Demo — nic nie jest przesyłane. W pełnej wersji weryfikację prowadzi
+        licencjonowany operator KYC, a zdjęcia nie trafiają na nasze serwery.</p>`;
+    modal.hidden = false;
+    document.getElementById("kyc-drop").addEventListener("click", () => {
+      const drop = document.getElementById("kyc-drop");
+      if (drop.classList.contains("scanning")) return;
+      drop.classList.add("scanning");
+      drop.querySelector("span").textContent = "Sprawdzanie…";
+      document.getElementById("kyc-progress").hidden = false;
+      setTimeout(() => {
+        drop.classList.add("done");
+        drop.querySelector("span").textContent = "Wygląda dobrze ✓";
+        setTimeout(next, 700);
+      }, 1500);
+    });
+  }
+
+  function startOnboarding() {
+    if (sessionStorage.getItem(SELLER_KEY)) { renderPanel(); show("panel"); return; }
+    modalBody.innerHTML = `
+      <h3>Konto sprzedawczyni — demo</h3>
+      <p class="modal-seller">Dwa kroki weryfikacji, ~30 sekund. Zobacz, jak to działa.</p>
+      <div class="field">
+        <label for="kyc-handle">Twój pseudonim</label>
+        <input class="input" id="kyc-handle" value="Malina" disabled>
+      </div>
+      <button class="btn btn-gold btn-block" id="kyc-start">Zaczynamy → weryfikacja dowodu</button>
+      <p class="modal-note">Demo używa konta pokazowego. Kupujący nigdy nie zobaczą Twojego imienia.</p>`;
+    modal.hidden = false;
+    document.getElementById("kyc-start").addEventListener("click", () => {
+      kycScanStep("Krok 1 z 2 — dowód osobisty",
+        "Zdjęcie przedniej strony dowodu. Sprawdzamy tylko pełnoletność i autentyczność dokumentu.",
+        () => kycScanStep("Krok 2 z 2 — selfie",
+          "Krótkie selfie, żeby potwierdzić, że dokument należy do Ciebie.",
+          () => {
+            modalBody.innerHTML = `
+              <h3>Zweryfikowana <span class="badge-verified" style="vertical-align:middle">✓</span></h3>
+              <p class="modal-seller">Twój profil dostaje odznakę weryfikacji — kupujący widzą wyłącznie pseudonim.</p>
+              <div class="modal-price">Witaj, Malina</div>
+              <button class="btn btn-gold btn-block" id="kyc-done">Wejdź do panelu</button>`;
+            document.getElementById("kyc-done").addEventListener("click", () => {
+              modal.hidden = true;
+              sessionStorage.setItem(SELLER_KEY, "1");
+              renderTopbar();
+              renderPanel();
+              show("panel");
+              toast("Konto demo aktywne — jesteś zalogowana jako Malina ✓");
+            });
+          }));
+    });
+  }
+
   // ── mock logowania: kupujący startuje w zajawkach, sprzedawczyni w panelu ──
   const topbarActions = document.getElementById("topbar-actions");
   const LOGIN_KEY = "szeptem-login";
@@ -676,13 +834,7 @@
     }
   });
 
-  document.getElementById("btn-seller-signup").addEventListener("click", () => {
-    sessionStorage.setItem(SELLER_KEY, "1");
-    renderTopbar();
-    renderPanel();
-    show("panel");
-    toast("Konto demo — jesteś zalogowana jako Malina ✓");
-  });
+  document.getElementById("btn-seller-signup").addEventListener("click", startOnboarding);
 
   // ── panel sprzedawczyni ──
   const panelRoot = document.getElementById("panel-root");
@@ -751,6 +903,8 @@
         <div class="stat-tile"><strong>${earnings.toLocaleString("pl-PL")} zł</strong><span>Twoje 85% z obrotu</span></div>
         <div class="stat-tile"><strong>${fmtCount(shortViews)}</strong><span>wyświetleń zajawek</span></div>
         <div class="stat-tile"><strong>${myListings.length}</strong><span>${plural(myListings.length, "oferta", "oferty", "ofert")} w katalogu</span></div>
+        <div class="stat-tile"><strong>${s.subs}</strong><span>subskrybentów po ${s.sub} zł/mies.</span></div>
+        <div class="stat-tile"><strong>${Math.round(s.subs * s.sub * 0.85).toLocaleString("pl-PL")} zł</strong><span>miesięcznie z subskrypcji (85%)</span></div>
       </div>
 
       <section class="panel-card panel-chart">
@@ -893,9 +1047,11 @@
             <span>na szeptem od <b>${s.joined}</b></span>
           </div>
           <div class="profile-actions">
-            <button class="btn btn-gold btn-sm" data-chat="${id}">Napisz wiadomość</button>
+            <button class="btn btn-gold btn-sm" data-sub="${id}">${subLabel(id)}</button>
+            <button class="btn btn-ghost btn-sm" data-chat="${id}">Napisz wiadomość</button>
             <button class="btn btn-ghost btn-sm follow-btn${follows.includes(id) ? " following" : ""}" data-follow="${id}">
               ${follows.includes(id) ? "Obserwujesz ✓" : "Obserwuj"}</button>
+            <button class="btn btn-ghost btn-sm" data-tip="${id}">Napiwek 🪙</button>
           </div>
         </div>
       </div>

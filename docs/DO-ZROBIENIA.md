@@ -33,6 +33,13 @@ Kolejność ma znaczenie. Szacowany Twój czas łącznie: ~4–6 godzin + 1 wizy
       `docs/prawne/` — 5 gotowych draftów z zaznaczonymi `[TODO]`
 - [ ] Po jego poprawkach wrzuć pliki z powrotem — ja wystawię je jako podstrony serwisu
 
+## 4b. Auto-deploy (5 min, po zakupie VPS)
+
+- [ ] GitHub → Settings → Secrets and variables → Actions → dodaj:
+      zmienną `DEPLOY_ENABLED=true` oraz sekrety `VPS_HOST`, `VPS_USER`,
+      `VPS_SSH_KEY` (szczegóły w komentarzu w `.github/workflows/deploy.yml`)
+      → od tej chwili każdy push sam aktualizuje stronę na serwerze
+
 ## 5. Płatności (30 min wypełniania, potem czekanie)
 
 - [ ] Po założeniu firmy: aplikacja do Segpay i CCBill równolegle

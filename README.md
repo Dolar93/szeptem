@@ -53,6 +53,20 @@ Zamiast zdjęć — **karty za zasłoną**: abstrakcyjne „atłasowe" gradienty
 (deterministyczne per seed) pod szkłem `backdrop-filter`, hover lekko uchyla
 zasłonę. To jednocześnie estetyka i mechanika produktu (podgląd = paywall).
 
+- **Subskrypcje i napiwki (mock)** — subskrypcja profilu (cena/mies.,
+  korzyści, anulowanie), napiwki 10/20/50/własna kwota z profilu, czatu
+  i szyny zajawek; napiwek zapisuje się jako wiadomość w rozmowie
+- **Onboarding sprzedawczyni (mock KYC)** — kreator: dowód → selfie →
+  odznaka „zweryfikowana" → panel; pokazuje kandydatkom przebieg weryfikacji
+
+## Serwer (faza 2)
+
+W `server/` leży działający fundament backendu — Node + wbudowane SQLite,
+zero zależności npm: konta (scrypt), sesje HttpOnly, oferty/zajawki z bazy,
+zapisy pionierek, zgłoszenia DSA, serwowanie strony. Szczegóły i mapa
+dalszych prac: `server/README.md`. Auto-deploy na VPS:
+`.github/workflows/deploy.yml` (uśpiony do czasu dodania sekretów).
+
 ## Soft-launch
 
 Strona działa w trybie startowym: baner + oferta pionierek (0% prowizji

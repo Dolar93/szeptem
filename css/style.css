@@ -589,6 +589,75 @@ body.demo .modal-note { display: none; }
   font-size: 2rem; color: var(--gold);
   margin-bottom: 1.4rem;
 }
+.btn-block { display: block; width: 100%; }
+.modal-permo { font-size: 1rem; color: var(--muted); font-style: normal; }
+
+/* subskrypcje */
+.sub-benefits { list-style: none; display: grid; gap: .5rem; margin-bottom: 1.5rem; }
+.sub-benefits li {
+  font-size: .9rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+.sub-benefits li::before {
+  content: "✓";
+  position: absolute; left: 0;
+  color: var(--rose);
+  font-weight: 700;
+}
+
+/* napiwki */
+.tip-amounts { display: flex; gap: .6rem; margin-bottom: 1.2rem; }
+.tip-amount {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: .95rem; font-weight: 600;
+  padding: .65rem 0;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--cream);
+  cursor: pointer;
+  transition: border-color .2s, background .2s, color .2s;
+}
+.tip-amount:hover { border-color: var(--rose-soft); }
+.tip-amount.active { background: var(--rose); border-color: var(--rose); color: var(--ink); }
+.tip-custom { flex: 1; text-align: center; }
+.chat-tip { margin-left: auto; }
+
+/* onboarding: mock weryfikacji */
+.kyc-drop {
+  width: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: .6rem;
+  padding: 2.2rem 1rem;
+  margin-bottom: 1rem;
+  border: 2px dashed var(--line);
+  border-radius: 16px;
+  background: rgba(25, 16, 25, .4);
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: .9rem;
+  cursor: pointer;
+  transition: border-color .25s, color .25s;
+}
+.kyc-drop:hover { border-color: var(--rose-soft); color: var(--cream); }
+.kyc-drop.scanning { border-color: var(--rose); color: var(--cream); cursor: default; }
+.kyc-drop.done { border-color: var(--rose); color: var(--rose); border-style: solid; }
+.kyc-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(244, 236, 234, .15);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.kyc-progress i {
+  display: block; height: 100%; width: 0;
+  background: var(--rose);
+  animation: kycScan 1.5s ease forwards;
+}
+@keyframes kycScan { to { width: 100%; } }
+
 .pay-options { display: grid; gap: .6rem; margin-bottom: 1.4rem; }
 .pay-option {
   display: flex; align-items: center; justify-content: space-between;
@@ -1066,7 +1135,7 @@ body.demo .modal-note { display: none; }
 
 .panel-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 1rem;
   margin-top: 1.6rem;
 }
