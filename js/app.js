@@ -66,6 +66,12 @@
   wireSignupForm("waitlist-form", "kupujacy",
     "Zapisano! Dostaniesz jedną wiadomość w dniu startu.");
 
+  // licznik wolnych miejsc pionierek (PIONEER_TAKEN w data.js)
+  const spotsEl = document.getElementById("pioneer-spots");
+  if (spotsEl && PIONEER_TAKEN > 0) {
+    spotsEl.textContent = `Wolne miejsca: ${20 - PIONEER_TAKEN} z 20.`;
+  }
+
   // ── nawigacja między widokami ──
   const views = document.querySelectorAll(".view");
   const navLinks = document.querySelectorAll(".nav-link");

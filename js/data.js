@@ -1,5 +1,9 @@
 // szeptem. — przykładowe dane prototypu (całkowicie fikcyjne)
 
+// ile z 20 miejsc pionierek jest już zajętych — podbijaj ręcznie,
+// gdy przychodzą zgłoszenia (uczciwie, bez sztucznego niedoboru)
+const PIONEER_TAKEN = 0;
+
 const CATEGORIES = [
   { id: "all",      label: "Wszystko" },
   { id: "stopki",   label: "Stópki" },

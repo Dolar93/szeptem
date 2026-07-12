@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /docs/
+Disallow: /deploy/
+
+# RTA — oznaczenie strony dla dorosłych (respektowane przez filtry rodzicielskie)
+# meta-tag RTA jest też w index.html

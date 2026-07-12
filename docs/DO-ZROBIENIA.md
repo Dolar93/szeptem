@@ -21,6 +21,12 @@ Kolejność ma znaczenie. Szacowany Twój czas łącznie: ~4–6 godzin + 1 wizy
 - [ ] Wklej go w `js/app.js` w linii `const FORM_ENDPOINT = "";` (między cudzysłowy)
       → od tej chwili zgłoszenia pionierek i zapisy kupujących przychodzą Ci na maila
 
+## 3b. E-maile w dokumentach (5 min, po założeniu skrzynek na domenie)
+
+- [ ] W plikach `regulamin.html`, `prywatnosc.html`, `zwroty.html`, `tresci.html`,
+      `kontakt.html` podmień żółte znaczniki `[e-mail]` na prawdziwe adresy
+      (wyszukaj w plikach frazę `legal-todo`) — albo podeślij mi adresy, zrobię ja
+
 ## 4. Prawnik (1 wizyta, ~500–1500 zł)
 
 - [ ] Umów prawnika (najlepiej z doświadczeniem e-commerce/IT) i daj mu folder
