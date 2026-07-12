@@ -53,6 +53,15 @@ Zamiast zdjęć — **karty za zasłoną**: abstrakcyjne „atłasowe" gradienty
 (deterministyczne per seed) pod szkłem `backdrop-filter`, hover lekko uchyla
 zasłonę. To jednocześnie estetyka i mechanika produktu (podgląd = paywall).
 
+## Soft-launch
+
+Strona działa w trybie startowym: baner + oferta pionierek (0% prowizji
+przez 3 miesiące dla pierwszych 20 sprzedawczyń) + formularz zgłoszeń
++ lista oczekujących kupujących. Zapisy: ustaw `FORM_ENDPOINT` w `js/app.js`
+(instrukcja: `docs/DO-ZROBIENIA.md`). Tryb czystego nagrywania rolek: `?demo`
+w adresie. Dokumenty startowe: `docs/` (prawne drafty, płatności/hosting,
+marketing), wdrożenie na VPS: `deploy/`.
+
 ## Struktura
 
 | Plik | Rola |

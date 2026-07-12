@@ -3,6 +3,20 @@
 (function () {
   "use strict";
 
+  // ── konfiguracja zapisów ──
+  // Po założeniu darmowego konta na formspree.io wklej tu adres formularza,
+  // np. "https://formspree.io/f/abcdwxyz". Puste = zapisy lądują w localStorage
+  // przeglądarki zgłaszającego (tryb demo, bez wysyłki).
+  const FORM_ENDPOINT = "";
+
+  // tryb czystego nagrywania (rolki): ?demo w adresie pomija bramkę 18+
+  // i chowa dopiski o prototypie
+  const DEMO_MODE = new URLSearchParams(location.search).has("demo");
+  if (DEMO_MODE) {
+    document.body.classList.add("demo");
+    sessionStorage.setItem("szeptem-adult", "1");
+  }
+
   // ── bramka 18+ ──
   const agegate = document.getElementById("agegate");
   if (sessionStorage.getItem("szeptem-adult") === "1") {
@@ -12,6 +26,45 @@
     sessionStorage.setItem("szeptem-adult", "1");
     agegate.classList.add("hidden");
   });
+
+  // ── baner startowy ──
+  const banner = document.getElementById("launch-banner");
+  if (!localStorage.getItem("szeptem-banner-off") && !DEMO_MODE) banner.hidden = false;
+  document.getElementById("launch-banner-close").addEventListener("click", () => {
+    banner.hidden = true;
+    localStorage.setItem("szeptem-banner-off", "1");
+  });
+
+  // ── zapisy: lista pionierek + lista oczekujących ──
+  function wireSignupForm(formId, kind, successMsg) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      data._typ = kind;
+      const done = () => {
+        form.innerHTML = `<p class="signup-done">${successMsg}</p>`;
+      };
+      if (FORM_ENDPOINT) {
+        fetch(FORM_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify(data),
+        }).then(done).catch(() => toast("Nie udało się wysłać — spróbuj ponownie"));
+      } else {
+        // tryb demo: bez skonfigurowanego FORM_ENDPOINT zgłoszenie zostaje lokalnie
+        const box = JSON.parse(localStorage.getItem("szeptem-zgloszenia") || "[]");
+        box.push(data);
+        localStorage.setItem("szeptem-zgloszenia", JSON.stringify(box));
+        done();
+      }
+    });
+  }
+  wireSignupForm("founding-form", "pionierka",
+    "Dziękujemy! Jesteś na liście pionierek — odezwiemy się przed startem z detalami. ✨");
+  wireSignupForm("waitlist-form", "kupujacy",
+    "Zapisano! Dostaniesz jedną wiadomość w dniu startu.");
 
   // ── nawigacja między widokami ──
   const views = document.querySelectorAll(".view");

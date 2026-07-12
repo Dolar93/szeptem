@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>szeptem — dyskretny marketplace dla dorosłych</title>
+<meta name="description" content="Pierwszy polski marketplace 18+: zdjęcia stóp, noszona bielizna i prywatne kolekcje od zweryfikowanych sprzedawczyń. W złotówkach, po polsku, dyskretnie.">
+<meta property="og:title" content="szeptem. — dyskretny marketplace 18+">
+<meta property="og:description" content="Kupuj i sprzedawaj szeptem. Zweryfikowane sprzedawczynie, dyskretne płatności, ceny w złotówkach. Startujemy — pierwsze 20 sprzedawczyń: 0% prowizji przez 3 miesiące.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://dolar93.github.io/szeptem/">
+<meta property="og:image" content="https://dolar93.github.io/szeptem/og-image.png">
+<meta property="og:locale" content="pl_PL">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%23191019'/%3E%3Ctext%20x='32'%20y='45'%20font-family='Georgia,serif'%20font-style='italic'%20font-size='38'%20fill='%23d695ac'%20text-anchor='middle'%3Es.%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
@@ -23,6 +32,13 @@
     </div>
     <p class="agegate-note">Prototyp — żadne treści ani płatności nie są prawdziwe.</p>
   </div>
+</div>
+
+<!-- ══════════ BANER STARTOWY ══════════ -->
+<div class="launch-banner" id="launch-banner" hidden>
+  <p><strong>Startujemy!</strong> Pierwsze 20 sprzedawczyń nie płaci prowizji przez 3 miesiące.
+    <a href="#" data-nav="sellers">Zgłoś się →</a></p>
+  <button class="launch-banner-close" id="launch-banner-close" aria-label="Zamknij baner">×</button>
 </div>
 
 <!-- ══════════ NAGŁÓWEK ══════════ -->
@@ -71,7 +87,7 @@
   </div>
 
   <div class="strip">
-    <div class="strip-item"><strong>85%</strong><span>prowizji trafia do sprzedawczyni</span></div>
+    <div class="strip-item"><strong>0%</strong><span>prowizji przez 3 miesiące dla pierwszych 20 kont</span></div>
     <div class="strip-item"><strong>PLN</strong><span>ceny i wypłaty w złotówkach</span></div>
     <div class="strip-item"><strong>18+</strong><span>weryfikacja dowodem, nie deklaracją</span></div>
     <div class="strip-item"><strong>0</strong><span>prawdziwych imion w serwisie</span></div>
@@ -90,6 +106,20 @@
     <h2 class="h2">Ostatnio <em>uchylone</em></h2>
     <div class="grid" id="home-grid"></div>
     <div class="section-more"><button class="btn btn-ghost" data-nav="browse">Zobacz cały katalog</button></div>
+  </div>
+
+  <div class="section">
+    <div class="waitlist-card">
+      <div>
+        <p class="eyebrow">Dla kupujących</p>
+        <h2 class="h2">Bądź pierwszy, gdy <em>uchylimy zasłonę</em></h2>
+        <p class="lead">Zostaw adres, a damy znać w dniu startu zakupów. Zero spamu — jedna wiadomość, potem cisza.</p>
+      </div>
+      <form class="signup-form" id="waitlist-form">
+        <input class="input" type="email" name="email" required placeholder="Twój e-mail" aria-label="Adres e-mail">
+        <button class="btn btn-gold" type="submit">Zapisz mnie</button>
+      </form>
+    </div>
   </div>
 </section>
 
@@ -175,13 +205,36 @@
       <li class="step">
         <span class="step-no">3</span>
         <h3>Wypłacasz</h3>
-        <p>85% ceny trafia do&nbsp;Ciebie. Wypłata na&nbsp;konto lub w&nbsp;krypto, z&nbsp;neutralnym tytułem przelewu.</p>
+        <p>Pionierki przez 3&nbsp;miesiące nie płacą prowizji. Później prowizja serwisu pokrywa dyskretne płatności 18+ i&nbsp;ochronę treści. Wypłata na&nbsp;konto lub w&nbsp;krypto, z&nbsp;neutralnym tytułem przelewu.</p>
       </li>
     </ol>
 
+    <div class="founding-box" id="founding">
+      <p class="eyebrow">Oferta na start</p>
+      <h3>Zostań jedną z 20 <em>pierwszych</em></h3>
+      <p class="founding-lead">Budujemy pierwszy polski marketplace tej kategorii i szukamy sprzedawczyń na start.
+        Pierwsze 20 zweryfikowanych kont: <strong>0% prowizji przez 3 miesiące</strong>, wpływ na rozwój serwisu
+        i stała odznaka „Pionierka" na profilu.</p>
+      <form class="signup-form founding-form" id="founding-form">
+        <div class="founding-fields">
+          <input class="input" type="text" name="pseudonim" required maxlength="40"
+                 placeholder="Pseudonim (nie podawaj imienia)" aria-label="Pseudonim">
+          <input class="input" type="text" name="kontakt" required maxlength="80"
+                 placeholder="Kontakt: e-mail albo @telegram" aria-label="Kontakt">
+          <input class="input" type="text" name="doswiadczenie" maxlength="120"
+                 placeholder="Sprzedajesz już gdzieś? (opcjonalnie: OF / Fansly / inne)" aria-label="Doświadczenie">
+        </div>
+        <label class="founding-consent">
+          <input type="checkbox" required> Mam ukończone 18 lat i zgłaszam się dobrowolnie.
+        </label>
+        <button class="btn btn-gold" type="submit">Zgłaszam się na listę pionierek</button>
+      </form>
+      <p class="seller-cta-note">Zgłoszenie nie zobowiązuje do niczego — odezwiemy się z detalami przed startem.</p>
+    </div>
+
     <div class="seller-cta">
-      <button class="btn btn-gold" id="btn-seller-signup">Załóż konto sprzedawczyni</button>
-      <span class="seller-cta-note">Rejestracja i weryfikacja są bezpłatne.</span>
+      <span class="seller-cta-note">Chcesz najpierw zobaczyć, jak będzie wyglądał Twój panel?</span>
+      <button class="btn btn-ghost btn-sm" id="btn-seller-signup">Wypróbuj konto demo</button>
     </div>
   </div>
 </section>

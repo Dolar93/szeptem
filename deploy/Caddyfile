@@ -1,0 +1,17 @@
+# Caddy — serwuje statyczną stronę szeptem z automatycznym HTTPS
+TWOJA-DOMENA.pl, www.TWOJA-DOMENA.pl {
+	root * /var/www/szeptem
+	file_server
+	encode gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	# dokumenty i deploy nie są częścią strony publicznej
+	@internal path /docs/* /deploy/* /README.md /.git*
+	respond @internal 404
+}
