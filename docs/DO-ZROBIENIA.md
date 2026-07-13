@@ -1,6 +1,11 @@
 # TWOJA lista — tylko to, czego nie mogę zrobić za Ciebie
 
-Kolejność ma znaczenie. Szacowany Twój czas łącznie: ~4–6 godzin + 1 wizyta u prawnika.
+Kolejność ma znaczenie. Szacowany Twój czas łącznie: ~4–6 godzin.
+
+> **Decyzja: startujemy bez prawnika.** Oszczędza czas i 500–1500 zł, ale zostają
+> dwa punkty do samodzielnego pilnowania — patrz punkt 4 niżej. Jeśli po starcie
+> pojawi się realny obrót, wróć do tematu (albo chociaż jedna płatna konsultacja
+> 30 min, ~200–400 zł, tylko pod te dwa punkty).
 
 ## 1. Dzień 1 — zakupy (≈45 min)
 
@@ -27,11 +32,22 @@ Kolejność ma znaczenie. Szacowany Twój czas łącznie: ~4–6 godzin + 1 wizy
       `kontakt.html` podmień żółte znaczniki `[e-mail]` na prawdziwe adresy
       (wyszukaj w plikach frazę `legal-todo`) — albo podeślij mi adresy, zrobię ja
 
-## 4. Prawnik (1 wizyta, ~500–1500 zł)
+## 4. Bez prawnika — dwa punkty do samodzielnego pilnowania
 
-- [ ] Umów prawnika (najlepiej z doświadczeniem e-commerce/IT) i daj mu folder
-      `docs/prawne/` — 5 gotowych draftów z zaznaczonymi `[TODO]`
-- [ ] Po jego poprawkach wrzuć pliki z powrotem — ja wystawię je jako podstrony serwisu
+Dokumenty w `docs/prawne/` i podstrony (`regulamin.html` itd.) publikujemy
+„as-is" po uzupełnieniu danych firmy. Dwa miejsca z realnym ryzykiem, które
+prawnik by domknął — trzymaj je z tyłu głowy:
+
+- [ ] **RODO — dane z weryfikacji (KYC).** Nie przechowuj kopii dowodów/selfie
+      na własnym serwerze — niech to robi wyłącznie zewnętrzny dostawca KYC
+      (Sumsub/Veriff). U siebie trzymaj tylko wynik: `verified = tak/nie`.
+      To już tak jest zaprojektowane w `server/db.js` — nie zmieniaj tego.
+- [ ] **JDG vs sp. z o.o.** JDG = odpowiedzialność całym majątkiem osobistym.
+      Świadoma decyzja, nie przeoczenie — jeśli obrót zacznie rosnąć, rozważ
+      przejście na sp. z o.o. (można założyć online przez S24 w ~tydzień).
+
+Gdy zechcesz wrócić do tematu prawnika: folder `docs/prawne/` ma gotowe
+5 draftów z zaznaczonymi `[TODO]` — wystarczy jedna wizyta.
 
 ## 4b. Auto-deploy (5 min, po zakupie VPS)
 

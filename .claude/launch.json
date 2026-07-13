@@ -6,6 +6,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["--yes", "serve", "-l", "4174", "."],
       "port": 4174
+    },
+    {
+      "name": "szeptem-alt",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "serve", "-l", "4179", "."],
+      "port": 4179
     }
   ]
 }
